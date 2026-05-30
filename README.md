@@ -1,6 +1,6 @@
-![douyin-cli](https://socialify.git.ci/LIghtJUNction/douyin-cli/image?description=1&font=Source%20Code%20Pro&forks=1&issues=1&language=1&owner=1&pattern=Circuit%20Board&stargazers=1&theme=Auto)
+![douyin](https://socialify.git.ci/LIghtJUNction/douyin/image?description=1&font=Source%20Code%20Pro&forks=1&issues=1&language=1&owner=1&pattern=Circuit%20Board&stargazers=1&theme=Auto)
 
-# douyin-cli
+# douyin
 
 面向抖音开放平台官方 OpenAPI 的命令行工具，提供 OAuth 授权、token 管理、常用官方接口封装和通用 OpenAPI 请求能力。
 
@@ -16,23 +16,44 @@
 
 ## 安装
 
+作为 Python 库安装：
+
 ```bash
-uv tool install douyin-cli
+uv add douyin
+```
+
+命令行安装：
+
+```bash
+uv tool install 'douyin[cli]'
 ```
 
 开发安装：
 
 ```bash
-uv tool install -e .
+uv tool install -e '.[cli]'
 uv tool install -e '.[subtitle-mac]'
 ```
 
 字幕可选依赖：
 
 ```bash
-uv tool install 'douyin-cli[subtitle]'
-uv tool install 'douyin-cli[subtitle-cuda]'
-uv tool install 'douyin-cli[subtitle-mac]'
+uv tool install 'douyin[subtitle]'
+uv tool install 'douyin[subtitle-cuda]'
+uv tool install 'douyin[subtitle-mac]'
+```
+
+Python 库调用示例：
+
+```python
+from douyin_cli.douyin import Douyin
+from douyin_cli.douyin.openapi import DouyinOpenAPIClient
+
+with DouyinOpenAPIClient() as client:
+    token_data = client.client_token("client_key", "client_secret")
+
+douyin = Douyin(target="二手车", type="search", limit=5, cookie="sessionid=...")
+douyin.run()
 ```
 
 ## Agent Skill
@@ -40,8 +61,8 @@ uv tool install 'douyin-cli[subtitle-mac]'
 安装本仓库配套 skill：
 
 ```bash
-bunx skills add LIghtJUNction/douyin-cli -g
-npx skills add LIghtJUNction/douyin-cli -g
+bunx skills add LIghtJUNction/douyin -g
+npx skills add LIghtJUNction/douyin -g
 ```
 
 ## 官方 OAuth 接入
@@ -91,7 +112,7 @@ douyin api comment-list --item-id "$DOUYIN_ITEM_ID"
 
 ## Obscura 集成
 
-`douyin-cli` 提供稳定的 JSON 输出和集成 manifest，Obscura 可以直接发现命令能力并调用官方 OpenAPI。
+`douyin` 提供稳定的 JSON 输出和集成 manifest，Obscura 可以直接发现命令能力并调用官方 OpenAPI。
 
 ```bash
 douyin obscura manifest
@@ -151,7 +172,7 @@ douyin subtitle video.mp4 --language zh
 douyin subtitle video.mp4 --model small --format srt
 ```
 
-首次使用模型时会自动从 Hugging Face 下载。CUDA 模式需要 CUDA 12 运行库；如果系统只提供 CUDA 13，可安装 `douyin-cli[subtitle-cuda]`，或使用 CPU 模式：
+首次使用模型时会自动从 Hugging Face 下载。CUDA 模式需要 CUDA 12 运行库；如果系统只提供 CUDA 13，可安装 `douyin[subtitle-cuda]`，或使用 CPU 模式：
 
 ```bash
 douyin subtitle video.mp4 --device cpu --compute-type int8 --language zh
@@ -160,7 +181,7 @@ douyin subtitle video.mp4 --device cpu --compute-type int8 --language zh
 macOS Apple Silicon 可安装 MLX 后端使用本机 GPU：
 
 ```bash
-uv tool install 'douyin-cli[subtitle-mac]'
+uv tool install 'douyin[subtitle-mac]'
 douyin subtitle video.mp4 --backend mlx-whisper --language zh
 ```
 

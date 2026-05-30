@@ -38,7 +38,7 @@ class SubtitleDependencyError(RuntimeError):
 
 CUDA_LIBRARY_HINT = (
     "CUDA 字幕依赖不完整。当前 faster-whisper/ctranslate2 需要 CUDA 12 "
-    "运行库。请使用: uv tool install 'douyin-cli[subtitle-cuda]'；"
+    "运行库。请使用: uv tool install 'douyin[subtitle-cuda]'；"
     "或改用 CPU: douyin subtitle video.mp4 --device cpu --compute-type int8"
 )
 CUDA_LIBRARY_PACKAGES = {
@@ -57,7 +57,7 @@ CUDA_LINK_ERROR_MARKERS = (
 )
 MACOS_MLX_INSTALL_HINT = (
     "缺少 macOS Apple Silicon GPU 字幕依赖 mlx-whisper。请使用: "
-    "uv tool install 'douyin-cli[subtitle-mac]'；"
+    "uv tool install 'douyin[subtitle-mac]'；"
     "或改用 CPU: douyin subtitle video.mp4 --backend faster-whisper "
     "--device cpu --compute-type int8"
 )
@@ -103,7 +103,7 @@ def transcribe_media_with_faster_whisper(
     except ImportError as exc:
         msg = (
             "缺少字幕依赖 faster-whisper。请使用: "
-            "uv tool install 'douyin-cli[subtitle]'"
+            "uv tool install 'douyin[subtitle]'"
         )
         raise SubtitleDependencyError(msg) from exc
 

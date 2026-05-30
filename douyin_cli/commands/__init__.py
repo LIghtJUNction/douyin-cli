@@ -1,1 +1,1 @@
-"""Click command groups for douyin-cli."""
+"""Click command groups for douyin."""

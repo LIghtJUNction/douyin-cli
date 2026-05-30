@@ -1,6 +1,6 @@
 ---
-name: douyin-cli
-description: "This skill should be used when working with this repository's douyin-cli command-line tool: installing it with uv tool install, running official Douyin OpenAPI commands, managing OAuth auth, validating packaging with uv_build, or troubleshooting CLI-only behavior."
+name: douyin
+description: "This skill should be used when working with this repository's douyin command-line tool: installing it with uv tool install, running official Douyin OpenAPI commands, managing OAuth auth, validating packaging with uv_build, or troubleshooting CLI-only behavior."
 ---
 
 # Douyin CLI
@@ -12,22 +12,23 @@ This repository is a CLI-only Python package for Douyin official OpenAPI workflo
 For end-user installs, install the published CLI package by name:
 
 ```bash
-uv tool install douyin-cli
+uv add douyin
+uv tool install 'douyin[cli]'
 douyin --help
 ```
 
 Install optional dependency groups only when the requested workflow needs them:
 
 ```bash
-uv tool install 'douyin-cli[subtitle]'
-uv tool install 'douyin-cli[subtitle-cuda]'
-uv tool install 'douyin-cli[subtitle-mac]'
+uv tool install 'douyin[subtitle]'
+uv tool install 'douyin[subtitle-cuda]'
+uv tool install 'douyin[subtitle-mac]'
 ```
 
 For local repository development, install from the checkout:
 
 ```bash
-uv tool install . --force
+uv tool install -e '.[cli]'
 uv tool install -e '.[subtitle-mac]'
 douyin --help
 uv run douyin api --help
@@ -38,7 +39,8 @@ uv build --wheel
 
 - Console entry point: `douyin = "douyin_cli.cli:main"`.
 - Build backend: `uv_build`; do not add setuptools config.
-- CLI state uses a user config directory, not the repo or `site-packages`: `$XDG_CONFIG_HOME/douyin-cli/config/settings.json`, `~/.config/douyin-cli/config/settings.json`, or `%APPDATA%\douyin-cli\config\settings.json`.
+- Default package dependencies support Python library use; CLI-only dependencies live in the `cli` extra.
+- CLI state uses a user config directory, not the repo or `site-packages`: `$XDG_CONFIG_HOME/douyin/config/settings.json`, `~/.config/douyin/config/settings.json`, or `%APPDATA%\douyin\config\settings.json`.
 - `DOUYIN_HOME` can be used to override the writable app directory for tests.
 - `douyin auth` is the official OAuth flow by default: `login`, `code`, `refresh`, `status`, `logout`.
 - Official write operations stay under `douyin api`, require access token/open_id/scope, and ask for confirmation unless `--yes` is passed.

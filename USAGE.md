@@ -2,6 +2,12 @@
 
 ## 账号授权
 
+命令行使用需要安装 CLI extra：
+
+```bash
+uv tool install 'douyin[cli]'
+```
+
 `douyin auth` 默认使用抖音开放平台官方 OAuth。
 
 生成授权链接并保存应用配置：
@@ -32,7 +38,7 @@ douyin auth logout
 授权配置保存在系统用户配置目录，例如：
 
 ```text
-~/.config/douyin-cli/config/settings.json
+~/.config/douyin/config/settings.json
 ```
 
 ## 官方 OpenAPI 命令
@@ -126,13 +132,13 @@ douyin api request POST /item/comment/reply/ \
 字幕功能基于 `faster-whisper`，从本地视频或音频生成字幕文件。该依赖较重，不随默认安装启用。
 
 ```bash
-uv tool install 'douyin-cli[subtitle]'
+uv tool install 'douyin[subtitle]'
 ```
 
 CUDA 版本：
 
 ```bash
-uv tool install 'douyin-cli[subtitle-cuda]'
+uv tool install 'douyin[subtitle-cuda]'
 ```
 
 生成字幕：
@@ -148,7 +154,7 @@ douyin subtitle *.mp4 --output subtitles/
 ```bash
 douyin subtitle video.mp4 \
   --model Systran/faster-whisper-small \
-  --model-cache-dir ~/.cache/douyin-cli/models
+  --model-cache-dir ~/.cache/douyin/models
 ```
 
 不用 CUDA 时：

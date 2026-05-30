@@ -13,10 +13,10 @@ def _first_writable_dir(candidates: list[Path]) -> Path:
             return candidate
         except OSError:
             continue
-    return Path("/tmp/douyin-cli")
+    return Path("/tmp/douyin")
 
 
-APP_DIR_NAME = "douyin-cli"
+APP_DIR_NAME = "douyin"
 
 
 def get_config_root() -> Path:

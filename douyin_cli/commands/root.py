@@ -21,7 +21,7 @@ BANNER = rf"""
  |____/ \___/ \__,_|\__, |_|_| |_|  \____|_|  \__,_| \_/\_/ |_|\___|_|
                     |___/
                               V{APP_VERSION}
-                Github: https://github.com/LIghtJUNction/douyin-cli
+                Github: https://github.com/LIghtJUNction/douyin
 """
 
 
@@ -133,7 +133,8 @@ def main(
       douyin comment "https://www.douyin.com/video/..."
 
     \b
-    Cookie 采集支持 search/aweme/post/favorite/collection/following/follower/music/hashtag/mix。
+    Cookie 采集支持：
+      search/aweme/post/favorite/collection/following/follower/music/hashtag/mix
     官方 OpenAPI 命令见：douyin api --help
     """
     configure_logging()

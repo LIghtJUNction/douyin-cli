@@ -1,11 +1,11 @@
 ---
-name: douyin-cli-hidden-commands
-description: "This skill should be used when working with douyin-cli hidden commands, undocumented command surfaces, cookie auth commands, root compatibility crawling, Obscura integration commands, or when the user asks about commands not shown in the normal CLI help."
+name: douyin-hidden-commands
+description: "This skill should be used when working with douyin hidden commands, undocumented command surfaces, cookie auth commands, root compatibility crawling, Obscura integration commands, or when the user asks about commands not shown in the normal CLI help."
 ---
 
 # Douyin CLI Hidden Commands
 
-Use this skill to discover and operate douyin-cli command surfaces that are easy
+Use this skill to discover and operate douyin command surfaces that are easy
 to miss from the default help output. Treat "hidden" here as two categories:
 Click-hidden commands and non-primary command surfaces that are intentionally
 documented less prominently than the official OpenAPI flow.
@@ -21,7 +21,7 @@ uv run douyin auth --help
 uv run douyin obscura --help
 ```
 
-Use `DOUYIN_HOME=/tmp/douyin-cli-hidden-check` when commands may read or write
+Use `DOUYIN_HOME=/tmp/douyin-hidden-check` when commands may read or write
 auth/config state during verification.
 
 ## Hidden Or Easy-To-Miss Commands
@@ -54,9 +54,9 @@ douyin auth cookie-logout
 ```
 
 Cookie values are saved in the user config file, not the repository:
-`$XDG_CONFIG_HOME/douyin-cli/config/settings.json`,
-`~/.config/douyin-cli/config/settings.json`, or
-`%APPDATA%\douyin-cli\config\settings.json`. Use `DOUYIN_HOME` to isolate tests.
+`$XDG_CONFIG_HOME/douyin/config/settings.json`,
+`~/.config/douyin/config/settings.json`, or
+`%APPDATA%\douyin\config\settings.json`. Use `DOUYIN_HOME` to isolate tests.
 
 ### Root Compatibility Crawl
 
@@ -93,8 +93,8 @@ For command-surface changes, run targeted help and tests:
 
 ```bash
 uv run pytest tests/test_cookie_status.py tests/test_obscura.py tests/test_comments.py
-DOUYIN_HOME=/tmp/douyin-cli-hidden-check uv run douyin auth --help
-DOUYIN_HOME=/tmp/douyin-cli-hidden-check uv run douyin obscura manifest
+DOUYIN_HOME=/tmp/douyin-hidden-check uv run douyin auth --help
+DOUYIN_HOME=/tmp/douyin-hidden-check uv run douyin obscura manifest
 ```
 
 If full CLI help is involved, also verify Windows-style encoding behavior:

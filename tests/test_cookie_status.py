@@ -11,8 +11,8 @@ def test_cookie_status_uses_web_request_validity(monkeypatch) -> None:
         "_settings",
         {"cookie": "sessionid=abc; ttwid=def"},
     )
-    monkeypatch.setattr(CookieManager, "validate_cookie", lambda cookie: True)
-    monkeypatch.setattr(CookieManager, "test_cookie_validity", lambda cookie: True)
+    monkeypatch.setattr(CookieManager, "validate_cookie", lambda _cookie: True)
+    monkeypatch.setattr(CookieManager, "test_cookie_validity", lambda _cookie: True)
 
     result = CliRunner().invoke(main, ["auth", "cookie-status"])
 
@@ -24,12 +24,12 @@ def test_cookie_validity_prefers_web_probe_over_sso(monkeypatch) -> None:
     monkeypatch.setattr(
         CookieManager,
         "test_web_request_validity",
-        lambda cookie_dict: True,
+        lambda _cookie_dict: True,
     )
     monkeypatch.setattr(
         CookieManager,
         "test_sso_login_validity",
-        lambda cookie_dict: False,
+        lambda _cookie_dict: False,
     )
 
     assert CookieManager.test_cookie_validity("sessionid=abc; ttwid=def") is True

@@ -1,4 +1,4 @@
-"""Command line entry point for douyin-cli."""
+"""Command line entry point for douyin."""
 
 from __future__ import annotations
 
@@ -18,7 +18,15 @@ def _prefer_utf8_stdio() -> None:
 
 _prefer_utf8_stdio()
 
-from douyin_cli.commands.root import main  # noqa: E402
+try:
+    from douyin_cli.commands.root import main
+except ImportError as exc:  # pragma: no cover
+    if exc.name == "click":
+        raise SystemExit(
+            "douyin CLI dependencies are not installed. "
+            "Install with: uv tool install 'douyin[cli]'"
+        ) from exc
+    raise
 
 __all__ = ["main"]
 

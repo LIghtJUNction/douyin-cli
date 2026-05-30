@@ -1,1 +1,1 @@
-"""douyin-cli package."""
+"""douyin package."""
