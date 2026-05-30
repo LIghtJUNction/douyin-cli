@@ -1,6 +1,6 @@
 [project]
 name = "douyin-cli"
-version = "2026.5.29.1"
+version = "2026.5.30.1"
 description = "支持抖音开放平台官方 OpenAPI 的命令行工具。"
 readme = "README.md"
 requires-python = ">=3.13"
