@@ -24,6 +24,7 @@ uv tool install douyin-cli
 
 ```bash
 uv tool install -e .
+uv tool install -e '.[subtitle-mac]'
 ```
 
 字幕可选依赖：
@@ -31,6 +32,7 @@ uv tool install -e .
 ```bash
 uv tool install 'douyin-cli[subtitle]'
 uv tool install 'douyin-cli[subtitle-cuda]'
+uv tool install 'douyin-cli[subtitle-mac]'
 ```
 
 ## Agent Skill
@@ -154,6 +156,15 @@ douyin subtitle video.mp4 --model small --format srt
 ```bash
 douyin subtitle video.mp4 --device cpu --compute-type int8 --language zh
 ```
+
+macOS Apple Silicon 可安装 MLX 后端使用本机 GPU：
+
+```bash
+uv tool install 'douyin-cli[subtitle-mac]'
+douyin subtitle video.mp4 --backend mlx-whisper --language zh
+```
+
+`--backend auto` 会在 macOS arm64 上优先使用 `mlx-whisper`，其他平台默认使用 `faster-whisper`。`--device` 和 `--compute-type` 只影响 `faster-whisper` 后端。
 
 ## 环境变量
 

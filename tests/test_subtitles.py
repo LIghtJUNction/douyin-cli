@@ -5,9 +5,12 @@ from douyin_cli.subtitles import (
     default_output_path,
     format_srt_time,
     is_cuda_link_error,
+    platform,
     render_srt,
     render_vtt,
+    resolve_mlx_model,
     resolve_output_path,
+    resolve_subtitle_backend,
 )
 
 
@@ -56,3 +59,20 @@ def test_is_cuda_link_error_detects_missing_cublas() -> None:
     error = OSError("libcublas.so.12: cannot open shared object file")
 
     assert is_cuda_link_error(error)
+
+
+def test_resolve_subtitle_backend_keeps_explicit_backend() -> None:
+    assert resolve_subtitle_backend("faster-whisper") == "faster-whisper"
+    assert resolve_subtitle_backend("mlx-whisper") == "mlx-whisper"
+
+
+def test_resolve_subtitle_backend_uses_mlx_on_apple_silicon(monkeypatch) -> None:
+    monkeypatch.setattr(platform, "system", lambda: "Darwin")
+    monkeypatch.setattr(platform, "machine", lambda: "arm64")
+
+    assert resolve_subtitle_backend("auto") == "mlx-whisper"
+
+
+def test_resolve_mlx_model_maps_common_whisper_name() -> None:
+    assert resolve_mlx_model("small") == "mlx-community/whisper-small"
+    assert resolve_mlx_model("custom/repo") == "custom/repo"

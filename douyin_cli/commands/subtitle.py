@@ -49,10 +49,20 @@ from douyin_cli.subtitles import (
 )
 @click.option("--language", help="语言代码，例如 zh/en；不传则自动识别")
 @click.option(
+    "--backend",
+    type=click.Choice(["auto", "faster-whisper", "mlx-whisper"], case_sensitive=False),
+    default="auto",
+    show_default=True,
+    help=(
+        "识别后端: auto/faster-whisper/mlx-whisper；"
+        "macOS Apple Silicon 默认使用 mlx-whisper"
+    ),
+)
+@click.option(
     "--device",
     default="auto",
     show_default=True,
-    help="运行设备: auto/cpu/cuda",
+    help="faster-whisper 运行设备: auto/cpu/cuda",
 )
 @click.option(
     "--compute-type",
@@ -77,6 +87,7 @@ def subtitle(
     output_format: str,
     model: str,
     language: str | None,
+    backend: str,
     device: str,
     compute_type: str,
     beam_size: int,
@@ -89,6 +100,7 @@ def subtitle(
         model=model,
         output_format=output_format,
         language=language,
+        backend=backend,
         device=device,
         compute_type=compute_type,
         beam_size=beam_size,

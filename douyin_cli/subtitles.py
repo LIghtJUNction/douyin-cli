@@ -1,8 +1,9 @@
-"""Subtitle generation with faster-whisper."""
+"""Subtitle generation with optional Whisper backends."""
 
 from __future__ import annotations
 
 import ctypes
+import platform
 from dataclasses import dataclass
 from importlib.resources import files
 from pathlib import Path
@@ -16,6 +17,7 @@ class SubtitleOptions:
     model: str
     output_format: str
     language: str | None
+    backend: str
     device: str
     compute_type: str
     beam_size: int
@@ -53,6 +55,21 @@ CUDA_LINK_ERROR_MARKERS = (
     "cuBLAS",
     "cuDNN",
 )
+MACOS_MLX_INSTALL_HINT = (
+    "缺少 macOS Apple Silicon GPU 字幕依赖 mlx-whisper。请使用: "
+    "uv tool install 'douyin-cli[subtitle-mac]'；"
+    "或改用 CPU: douyin subtitle video.mp4 --backend faster-whisper "
+    "--device cpu --compute-type int8"
+)
+MLX_MODEL_ALIASES = {
+    "tiny": "mlx-community/whisper-tiny",
+    "base": "mlx-community/whisper-base",
+    "small": "mlx-community/whisper-small",
+    "medium": "mlx-community/whisper-medium",
+    "large": "mlx-community/whisper-large-v3-mlx",
+    "large-v3": "mlx-community/whisper-large-v3-mlx",
+    "turbo": "mlx-community/whisper-turbo",
+}
 
 
 def transcribe_media(
@@ -60,6 +77,26 @@ def transcribe_media(
     options: SubtitleOptions,
 ) -> list[SubtitleSegment]:
     """Generate timestamped subtitle segments from a media file."""
+    backend = resolve_subtitle_backend(options.backend)
+    if backend == "mlx-whisper":
+        return transcribe_media_with_mlx(media_path, options)
+    return transcribe_media_with_faster_whisper(media_path, options)
+
+
+def resolve_subtitle_backend(backend: str) -> str:
+    """Resolve auto backend selection for the current platform."""
+    if backend != "auto":
+        return backend
+    if platform.system() == "Darwin" and platform.machine() == "arm64":
+        return "mlx-whisper"
+    return "faster-whisper"
+
+
+def transcribe_media_with_faster_whisper(
+    media_path: Path,
+    options: SubtitleOptions,
+) -> list[SubtitleSegment]:
+    """Generate subtitle segments with faster-whisper/CTranslate2."""
     prepare_cuda_libraries(options.device)
     try:
         from faster_whisper import WhisperModel
@@ -99,6 +136,43 @@ def transcribe_media(
         for segment in segments
         if segment.text.strip()
     ]
+
+
+def transcribe_media_with_mlx(
+    media_path: Path,
+    options: SubtitleOptions,
+) -> list[SubtitleSegment]:
+    """Generate subtitle segments with mlx-whisper on Apple Silicon."""
+    try:
+        import mlx_whisper
+    except ImportError as exc:
+        raise SubtitleDependencyError(MACOS_MLX_INSTALL_HINT) from exc
+
+    model = resolve_mlx_model(options.model)
+    try:
+        result = mlx_whisper.transcribe(
+            str(media_path),
+            path_or_hf_repo=model,
+            language=options.language,
+        )
+    except TypeError:
+        result = mlx_whisper.transcribe(str(media_path), path_or_hf_repo=model)
+
+    raw_segments = result.get("segments") or []
+    return [
+        SubtitleSegment(
+            start=float(segment["start"]),
+            end=float(segment["end"]),
+            text=str(segment["text"]).strip(),
+        )
+        for segment in raw_segments
+        if str(segment.get("text", "")).strip()
+    ]
+
+
+def resolve_mlx_model(model: str) -> str:
+    """Map common Whisper model names to MLX Community checkpoints."""
+    return MLX_MODEL_ALIASES.get(model, model)
 
 
 def prepare_cuda_libraries(device: str) -> None:

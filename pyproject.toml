@@ -31,6 +31,9 @@ subtitle-cuda = [
     "nvidia-cublas-cu12>=12.9.2.10",
     "nvidia-cudnn-cu12>=9.22.0.52",
 ]
+subtitle-mac = [
+    "mlx-whisper>=0.4.3; sys_platform == 'darwin' and platform_machine == 'arm64'",
+]
 
 [build-system]
 requires = ["uv_build>=0.11.16,<0.12"]

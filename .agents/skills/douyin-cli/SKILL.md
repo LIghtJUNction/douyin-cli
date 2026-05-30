@@ -21,12 +21,14 @@ Install optional dependency groups only when the requested workflow needs them:
 ```bash
 uv tool install 'douyin-cli[subtitle]'
 uv tool install 'douyin-cli[subtitle-cuda]'
+uv tool install 'douyin-cli[subtitle-mac]'
 ```
 
 For local repository development, install from the checkout:
 
 ```bash
 uv tool install . --force
+uv tool install -e '.[subtitle-mac]'
 douyin --help
 uv run douyin api --help
 uv build --wheel
@@ -40,7 +42,7 @@ uv build --wheel
 - `DOUYIN_HOME` can be used to override the writable app directory for tests.
 - `douyin auth` is the official OAuth flow by default: `login`, `code`, `refresh`, `status`, `logout`.
 - Official write operations stay under `douyin api`, require access token/open_id/scope, and ask for confirmation unless `--yes` is passed.
-- Local subtitle generation lives under `douyin subtitle` and uses optional extras: `subtitle` or `subtitle-cuda`.
+- Local subtitle generation lives under `douyin subtitle` and uses optional extras: `subtitle`, `subtitle-cuda`, or `subtitle-mac`.
 
 ## Common Commands
 
@@ -53,6 +55,7 @@ douyin api userinfo --token "$DOUYIN_ACCESS_TOKEN" --open-id "$DOUYIN_OPEN_ID"
 douyin api comment-reply --token "$DOUYIN_ACCESS_TOKEN" --open-id "$DOUYIN_OPEN_ID" --item-id "$DOUYIN_ITEM_ID" --comment-id "$DOUYIN_COMMENT_ID" --content "谢谢反馈"
 douyin api request GET /oauth/userinfo/ --token "$DOUYIN_ACCESS_TOKEN" --param open_id="$DOUYIN_OPEN_ID"
 douyin subtitle video.mp4 --language zh
+douyin subtitle video.mp4 --backend mlx-whisper --language zh
 ```
 
 ## Maintenance Rules
