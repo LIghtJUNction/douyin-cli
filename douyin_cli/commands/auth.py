@@ -2,7 +2,13 @@
 
 from __future__ import annotations
 
+import secrets
+import threading
+from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
+from urllib.parse import parse_qs, urlparse
+
 import click
+import qrcode
 
 from douyin_cli.commands.common import (
     DEFAULT_OPENAPI_SCOPES,
@@ -45,12 +51,48 @@ def auth() -> None:
 @click.option("--redirect-uri", help="开放平台应用回调地址")
 @click.option("--scope", "scopes", multiple=True, help="授权 scope，可多次传入")
 @click.option("--code", help="授权回调得到的 code；传入后会直接换取 token")
+@click.option(
+    "--qr/--no-qr",
+    default=True,
+    show_default=True,
+    help="在终端显示授权链接二维码",
+)
+@click.option(
+    "--listen/--no-listen",
+    default=False,
+    help="在本机监听回调并自动捕获 code",
+)
+@click.option(
+    "--callback-host",
+    default="127.0.0.1",
+    show_default=True,
+    help="--listen 使用的本机监听地址",
+)
+@click.option(
+    "--callback-port",
+    default=8787,
+    show_default=True,
+    type=click.IntRange(1, 65535),
+    help="--listen 使用的本机监听端口",
+)
+@click.option(
+    "--timeout",
+    default=300,
+    show_default=True,
+    type=click.IntRange(1, 3600),
+    help="--listen 等待授权回调的秒数",
+)
 def login(
     client_key: str | None,
     client_secret: str | None,
     redirect_uri: str | None,
     scopes: tuple[str, ...],
     code: str | None,
+    qr: bool,
+    listen: bool,
+    callback_host: str,
+    callback_port: int,
+    timeout: int,
 ) -> None:
     """通过官方 OAuth 授权接入账号."""
     config = get_openapi_config()
@@ -58,6 +100,10 @@ def login(
     client_secret = client_secret or config.get("clientSecret")
     redirect_uri = redirect_uri or config.get("redirectUri")
     selected_scopes = list(scopes or config.get("scopes") or DEFAULT_OPENAPI_SCOPES)
+    state = secrets.token_urlsafe(16) if listen and not code else None
+
+    if listen:
+        redirect_uri = f"http://{callback_host}:{callback_port}/callback"
 
     if not client_key:
         raise click.ClickException(
@@ -67,9 +113,13 @@ def login(
         raise click.ClickException("缺少 redirect_uri，请传入 --redirect-uri")
 
     with DouyinOpenAPIClient() as client:
-        auth_url = client.authorize_url(client_key, redirect_uri, selected_scopes)
+        auth_url = client.authorize_url(
+            client_key, redirect_uri, selected_scopes, state
+        )
         click.echo("请在浏览器打开以下官方授权链接：")
         click.echo(auth_url)
+        if qr:
+            _print_qr(auth_url)
 
         updates = {
             "clientKey": client_key,
@@ -77,6 +127,9 @@ def login(
             "redirectUri": redirect_uri,
             "scopes": selected_scopes,
         }
+        if listen and not code:
+            click.echo(f"正在等待授权回调: {redirect_uri}")
+            code = _wait_for_oauth_code(callback_host, callback_port, state, timeout)
         if code:
             if not client_secret:
                 raise click.ClickException("使用 code 换 token 需要 --client-secret")
@@ -229,3 +282,120 @@ def cookie_logout() -> None:
 
 def _validate_cookie(cookie: str) -> bool:
     return CookieManager.validate_cookie(cookie)
+
+
+def _print_qr(value: str) -> None:
+    qr = qrcode.QRCode(border=1)
+    qr.add_data(value)
+    qr.make(fit=True)
+    matrix = qr.get_matrix()
+    click.echo()
+    for row_index in range(0, len(matrix), 2):
+        top = matrix[row_index]
+        bottom = (
+            matrix[row_index + 1] if row_index + 1 < len(matrix) else [False] * len(top)
+        )
+        line = "".join(
+            _qr_cell(top_cell, bottom_cell)
+            for top_cell, bottom_cell in zip(top, bottom, strict=True)
+        )
+        click.echo(line)
+    click.echo()
+
+
+def _qr_cell(top: bool, bottom: bool) -> str:
+    if top and bottom:
+        return "█"
+    if top:
+        return "▀"
+    if bottom:
+        return "▄"
+    return " "
+
+
+def _wait_for_oauth_code(
+    host: str,
+    port: int,
+    expected_state: str | None,
+    timeout: int,
+) -> str:
+    try:
+        server = _OAuthCallbackServer((host, port), _OAuthCallbackHandler)
+    except OSError as exc:
+        raise click.ClickException(
+            f"无法监听 {host}:{port}，请换一个 --callback-port",
+        ) from exc
+    server.code = None
+    server.error = None
+    server.expected_state = expected_state
+    server.timeout = timeout
+
+    thread = threading.Thread(target=server.handle_request, daemon=True)
+    thread.start()
+    thread.join(timeout + 1)
+    server.server_close()
+
+    if server.error:
+        raise click.ClickException(server.error)
+    if not server.code:
+        raise click.ClickException("等待授权回调超时，未获取到 code")
+    return server.code
+
+
+class _OAuthCallbackServer(ThreadingHTTPServer):
+    code: str | None = None
+    error: str | None = None
+    expected_state: str | None = None
+
+
+class _OAuthCallbackHandler(BaseHTTPRequestHandler):
+    def log_message(self, _format: str, *_args: object) -> None:
+        return
+
+    def do_GET(self) -> None:
+        server = self.server
+        if not isinstance(server, _OAuthCallbackServer):
+            self.send_error(500)
+            return
+
+        parsed = urlparse(self.path)
+        params = parse_qs(parsed.query)
+        state = _first(params.get("state"))
+        code = _first(params.get("code"))
+        error = _first(params.get("error")) or _first(params.get("error_description"))
+
+        if parsed.path != "/callback":
+            self._send_html(404, "Douyin CLI", "未找到回调路径")
+            return
+        if error:
+            server.error = f"授权失败: {error}"
+            self._send_html(400, "授权失败", "可以关闭此页面并返回终端。")
+            return
+        if server.expected_state and state != server.expected_state:
+            server.error = "授权回调 state 不匹配，已拒绝"
+            self._send_html(400, "授权失败", "state 不匹配。")
+            return
+        if not code:
+            server.error = "授权回调缺少 code"
+            self._send_html(400, "授权失败", "回调缺少 code。")
+            return
+
+        server.code = code
+        self._send_html(200, "授权完成", "可以关闭此页面并返回终端。")
+
+    def _send_html(self, status: int, title: str, body: str) -> None:
+        content = (
+            "<!doctype html><meta charset='utf-8'>"
+            f"<title>{title}</title><h1>{title}</h1><p>{body}</p>"
+        ).encode()
+        self.send_response(status)
+        self.send_header("Content-Type", "text/html; charset=utf-8")
+        self.send_header("Content-Length", str(len(content)))
+        self.end_headers()
+        self.wfile.write(content)
+
+
+def _first(values: list[str] | None) -> str | None:
+    if not values:
+        return None
+    return values[0]

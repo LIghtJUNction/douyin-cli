@@ -154,6 +154,7 @@ dependencies = [
     { name = "exejs" },
     { name = "loguru" },
     { name = "niquests" },
+    { name = "qrcode" },
     { name = "ujson" },
 ]
 
@@ -184,6 +185,7 @@ requires-dist = [
     { name = "niquests", specifier = ">=3.10" },
     { name = "nvidia-cublas-cu12", marker = "extra == 'subtitle-cuda'", specifier = ">=12.9.2.10" },
     { name = "nvidia-cudnn-cu12", marker = "extra == 'subtitle-cuda'", specifier = ">=9.22.0.52" },
+    { name = "qrcode", specifier = ">=8.2" },
     { name = "ujson", specifier = ">=5.11.0" },
 ]
 provides-extras = ["subtitle", "subtitle-cuda"]
@@ -728,6 +730,18 @@ wheels = [
     { url = "https://mirrors.aliyun.com/pypi/packages/98/1c/fb8b3ffe854642f9bcfe70d9fea2c16b2fe2fc7c1ec1c4dd4302269a827f/qh3-1.8.1-cp37-abi3-win32.whl", hash = "sha256:bbf293fb4a6aa3721c559e2a7f12cda259eb837b962ddc2fa2246172b0869355" },
     { url = "https://mirrors.aliyun.com/pypi/packages/1d/e8/3f871ea3f1d4e17536f38410c5c333b4aa3c60f74350eb91799d482243de/qh3-1.8.1-cp37-abi3-win_amd64.whl", hash = "sha256:d4c53c82f7cef0a2a8714cc3c48fca970f496132542483ad1489fb8f2b9c70c5" },
     { url = "https://mirrors.aliyun.com/pypi/packages/82/17/8e0c85c5c37a1d0f3cd786d8a214721ac6ff375f81c8bc42b085afeaba91/qh3-1.8.1-cp37-abi3-win_arm64.whl", hash = "sha256:b663902cc74fe3f7f4f7d47ff7b42aed1d58172391b116e388e4557a76b3635b" },
+]
+
+[[package]]
+name = "qrcode"
+version = "8.2"
+source = { registry = "https://mirrors.aliyun.com/pypi/simple/" }
+dependencies = [
+    { name = "colorama", marker = "sys_platform == 'win32'" },
+]
+sdist = { url = "https://mirrors.aliyun.com/pypi/packages/8f/b2/7fc2931bfae0af02d5f53b174e9cf701adbb35f39d69c2af63d4a39f81a9/qrcode-8.2.tar.gz", hash = "sha256:35c3f2a4172b33136ab9f6b3ef1c00260dd2f66f858f24d88418a015f446506c" }
+wheels = [
+    { url = "https://mirrors.aliyun.com/pypi/packages/dd/b8/d2d6d731733f51684bbf76bf34dab3b70a9148e8f2cef2bb544fccec681a/qrcode-8.2-py3-none-any.whl", hash = "sha256:16e64e0716c14960108e85d853062c9e8bba5ca8252c0b4d0231b9df4060ff4f" },
 ]
 
 [[package]]

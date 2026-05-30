@@ -10,6 +10,7 @@ dependencies = [
     "exejs>=0.0.7",
     "loguru>=0.7.3",
     "niquests>=3.10",
+    "qrcode>=8.2",
     "ujson>=5.11.0",
 ]
 
