@@ -9,6 +9,22 @@ This repository is a CLI-only Python package for Douyin official OpenAPI workflo
 
 ## Install And Verify
 
+For end-user installs, install the published CLI package by name:
+
+```bash
+uv tool install douyin-cli
+douyin --help
+```
+
+Install optional dependency groups only when the requested workflow needs them:
+
+```bash
+uv tool install 'douyin-cli[subtitle]'
+uv tool install 'douyin-cli[subtitle-cuda]'
+```
+
+For local repository development, install from the checkout:
+
 ```bash
 uv tool install . --force
 douyin --help
