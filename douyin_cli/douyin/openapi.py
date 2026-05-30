@@ -6,6 +6,7 @@ from typing import Any, Self
 from urllib.parse import urlencode
 
 import niquests as requests
+import ujson as json
 
 OPENAPI_BASE_URL = "https://open.douyin.com"
 
@@ -181,6 +182,34 @@ class DouyinOpenAPIClient:
         return self.request(
             "POST",
             "/item/comment/reply/",
+            token=token,
+            params={"open_id": open_id},
+            json_body=body,
+        )
+
+    def send_im_message(
+        self,
+        token: str,
+        open_id: str,
+        to_user_id: str,
+        message_type: str,
+        content: dict[str, Any],
+        persona_id: str | None = None,
+        client_msg_id: str | None = None,
+    ) -> dict[str, Any]:
+        """Send an enterprise IM message to a Douyin user."""
+        body = {
+            "to_user_id": to_user_id,
+            "message_type": message_type,
+            "content": json.dumps(content, ensure_ascii=False),
+        }
+        if persona_id:
+            body["persona_id"] = persona_id
+        if client_msg_id:
+            body["client_msg_id"] = client_msg_id
+        return self.request(
+            "POST",
+            "/enterprise/im/message/send/",
             token=token,
             params={"open_id": open_id},
             json_body=body,

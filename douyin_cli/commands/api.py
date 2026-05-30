@@ -153,6 +153,81 @@ def comment_reply(
         echo_json(client.reply_comment(token, open_id, item_id, content, comment_id))
 
 
+@api.command("im-message-send")
+@click.option("--token", envvar="DOUYIN_ACCESS_TOKEN", help="默认读取已保存 token")
+@click.option("--open-id", help="默认读取已保存 open_id")
+@click.option("--to-user-id", required=True, help="私信接收方 open_id/to_user_id")
+@click.option(
+    "--message-type",
+    type=click.Choice(["text", "image", "video", "card"]),
+    default="text",
+    show_default=True,
+)
+@click.option("--text", help="文本消息内容；message-type=text 时使用")
+@click.option("--media-id", help="图片素材 media_id；message-type=image 时使用")
+@click.option("--item-id", help="已审核通过的视频 item_id；message-type=video 时使用")
+@click.option("--card-id", help="企业消息卡片 card_id；message-type=card 时使用")
+@click.option("--persona-id", help="客服 persona_id；不传则走普通会话")
+@click.option("--client-msg-id", help="调用方自定义消息 ID")
+@click.option("--yes", is_flag=True, help="跳过写操作确认")
+def im_message_send(
+    token: str | None,
+    open_id: str | None,
+    to_user_id: str,
+    message_type: str,
+    text: str | None,
+    media_id: str | None,
+    item_id: str | None,
+    card_id: str | None,
+    persona_id: str | None,
+    client_msg_id: str | None,
+    yes: bool,
+) -> None:
+    """调用企业号 OpenAPI 发送私信消息."""
+    token, open_id = resolve_openapi_auth(token, open_id)
+    content = _build_im_message_content(message_type, text, media_id, item_id, card_id)
+    if not yes:
+        click.confirm("将通过企业号 OpenAPI 发送私信消息，是否继续？", abort=True)
+    with DouyinOpenAPIClient() as client:
+        echo_json(
+            client.send_im_message(
+                token,
+                open_id,
+                to_user_id,
+                message_type,
+                content,
+                persona_id=persona_id,
+                client_msg_id=client_msg_id,
+            ),
+        )
+
+
+def _build_im_message_content(
+    message_type: str,
+    text: str | None,
+    media_id: str | None,
+    item_id: str | None,
+    card_id: str | None,
+) -> dict:
+    if message_type == "text":
+        if not text:
+            raise click.ClickException("message-type=text 需要 --text")
+        return {"text": text}
+    if message_type == "image":
+        if not media_id:
+            raise click.ClickException("message-type=image 需要 --media-id")
+        return {"media_id": media_id}
+    if message_type == "video":
+        if not item_id:
+            raise click.ClickException("message-type=video 需要 --item-id")
+        return {"item_id": item_id}
+    if message_type == "card":
+        if not card_id:
+            raise click.ClickException("message-type=card 需要 --card-id")
+        return {"card_id": card_id}
+    raise click.ClickException(f"不支持的私信类型: {message_type}")
+
+
 @api.command("request")
 @click.argument("method")
 @click.argument("path")

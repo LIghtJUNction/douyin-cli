@@ -10,6 +10,7 @@
 - 官方 `client_token`、`access_token` 管理
 - 授权用户信息查询
 - 官方评论列表、评论回复列表、评论回复
+- 企业号私信消息发送
 - 任意官方 OpenAPI 路径请求
 - 可选本地字幕生成
 - Obscura/自动化运行时集成
@@ -155,6 +156,21 @@ douyin api comment-reply \
   --item-id "$DOUYIN_ITEM_ID" \
   --comment-id "$DOUYIN_COMMENT_ID" \
   --content "谢谢反馈"
+```
+
+企业号私信发送需要应用已开通 `enterprise.im` 权限，并从私信事件回调中拿到接收方 `to_user_id`：
+
+```bash
+douyin auth login \
+  --client-key "$DOUYIN_CLIENT_KEY" \
+  --client-secret "$DOUYIN_CLIENT_SECRET" \
+  --redirect-uri "https://example.com/callback" \
+  --scope enterprise.im
+
+douyin api im-message-send \
+  --to-user-id "$DOUYIN_TO_USER_ID" \
+  --text "你好，已收到" \
+  --yes
 ```
 
 通用请求：

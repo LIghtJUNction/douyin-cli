@@ -41,6 +41,16 @@ It uses saved Cookie auth by default and also accepts `--cookie` for one-off
 runs. Do not confuse this with official OpenAPI comment commands under
 `douyin api`, which require `access_token`, `open_id`, and appropriate scopes.
 
+### `douyin api im-message-send`
+
+This is an official enterprise OpenAPI command, not a cookie/web crawler flow.
+It requires the app to have `enterprise.im` permission and a `to_user_id` from
+Douyin private-message event callbacks.
+
+```bash
+douyin api im-message-send --to-user-id "$DOUYIN_TO_USER_ID" --text "你好" --yes
+```
+
 ### `douyin auth cookie-login`
 
 Cookie auth commands live under `douyin auth` but are separate from the official

@@ -114,6 +114,15 @@ douyin api comment-reply \
 
 写操作默认会二次确认，自动化场景可加 `--yes`。
 
+企业号私信发送需要应用已开通 `enterprise.im` 权限，并从私信事件回调中拿到接收方 `to_user_id`：
+
+```bash
+douyin api im-message-send \
+  --to-user-id "$DOUYIN_TO_USER_ID" \
+  --text "你好，已收到" \
+  --yes
+```
+
 通用官方 OpenAPI 请求：
 
 ```bash

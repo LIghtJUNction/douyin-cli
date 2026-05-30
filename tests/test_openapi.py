@@ -2,7 +2,7 @@ import pytest
 from click.testing import CliRunner
 
 from douyin_cli.cli import main
-from douyin_cli.commands import auth
+from douyin_cli.commands import api, auth, common
 from douyin_cli.douyin.openapi import DouyinOpenAPIClient, DouyinOpenAPIError
 
 
@@ -146,3 +146,117 @@ def test_login_listen_uses_local_callback_and_exchanges_code(monkeypatch) -> Non
     assert saved["accessToken"] == "access"
     assert saved["refreshToken"] == "refresh"
     assert saved["openId"] == "open"
+
+
+def test_send_im_message_posts_enterprise_payload(monkeypatch) -> None:
+    client = DouyinOpenAPIClient()
+    captured: dict = {}
+
+    def fake_request(method: str, path: str, **kwargs: object) -> dict:
+        captured.update({"method": method, "path": path, **kwargs})
+        return {"data": {"message_id": "msg-1"}}
+
+    monkeypatch.setattr(client, "request", fake_request)
+
+    result = client.send_im_message(
+        "access",
+        "enterprise-open-id",
+        "user-open-id",
+        "text",
+        {"text": "你好"},
+        persona_id="persona",
+        client_msg_id="client-msg",
+    )
+
+    assert result == {"data": {"message_id": "msg-1"}}
+    assert captured["method"] == "POST"
+    assert captured["path"] == "/enterprise/im/message/send/"
+    assert captured["token"] == "access"
+    assert captured["params"] == {"open_id": "enterprise-open-id"}
+    assert captured["json_body"] == {
+        "to_user_id": "user-open-id",
+        "message_type": "text",
+        "content": '{"text":"你好"}',
+        "persona_id": "persona",
+        "client_msg_id": "client-msg",
+    }
+
+
+def test_api_im_message_send_uses_saved_auth(monkeypatch) -> None:
+    monkeypatch.setattr(
+        common.settings,
+        "_settings",
+        {
+            "openapi": {
+                "accessToken": "saved-token",
+                "openId": "enterprise-open-id",
+            },
+        },
+    )
+
+    class DummyClient:
+        def __enter__(self):
+            return self
+
+        def __exit__(self, exc_type, exc_val, exc_tb) -> bool:
+            return False
+
+        def send_im_message(
+            self,
+            token: str,
+            open_id: str,
+            to_user_id: str,
+            message_type: str,
+            content: dict,
+            *,
+            persona_id: str | None = None,
+            client_msg_id: str | None = None,
+        ) -> dict:
+            assert token == "saved-token"
+            assert open_id == "enterprise-open-id"
+            assert to_user_id == "user-open-id"
+            assert message_type == "text"
+            assert content == {"text": "你好"}
+            assert persona_id is None
+            assert client_msg_id == "client-msg"
+            return {"data": {"message_id": "msg-1"}}
+
+    monkeypatch.setattr(api, "DouyinOpenAPIClient", DummyClient)
+
+    result = CliRunner().invoke(
+        main,
+        [
+            "api",
+            "im-message-send",
+            "--to-user-id",
+            "user-open-id",
+            "--text",
+            "你好",
+            "--client-msg-id",
+            "client-msg",
+            "--yes",
+        ],
+    )
+
+    assert result.exit_code == 0
+    assert "msg-1" in result.output
+
+
+def test_api_im_message_send_requires_text_for_text_message() -> None:
+    result = CliRunner().invoke(
+        main,
+        [
+            "api",
+            "im-message-send",
+            "--token",
+            "token",
+            "--open-id",
+            "open",
+            "--to-user-id",
+            "user",
+            "--yes",
+        ],
+    )
+
+    assert result.exit_code != 0
+    assert "message-type=text 需要 --text" in result.output

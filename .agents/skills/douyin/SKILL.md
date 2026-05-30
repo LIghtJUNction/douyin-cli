@@ -55,6 +55,7 @@ douyin auth status
 douyin api client-token --client-key "$DOUYIN_CLIENT_KEY" --client-secret "$DOUYIN_CLIENT_SECRET"
 douyin api userinfo --token "$DOUYIN_ACCESS_TOKEN" --open-id "$DOUYIN_OPEN_ID"
 douyin api comment-reply --token "$DOUYIN_ACCESS_TOKEN" --open-id "$DOUYIN_OPEN_ID" --item-id "$DOUYIN_ITEM_ID" --comment-id "$DOUYIN_COMMENT_ID" --content "谢谢反馈"
+douyin api im-message-send --token "$DOUYIN_ACCESS_TOKEN" --open-id "$DOUYIN_OPEN_ID" --to-user-id "$DOUYIN_TO_USER_ID" --text "你好" --yes
 douyin api request GET /oauth/userinfo/ --token "$DOUYIN_ACCESS_TOKEN" --param open_id="$DOUYIN_OPEN_ID"
 douyin subtitle video.mp4 --language zh
 douyin subtitle video.mp4 --backend mlx-whisper --language zh
