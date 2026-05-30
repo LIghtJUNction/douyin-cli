@@ -106,9 +106,7 @@ def login(
         redirect_uri = f"http://{callback_host}:{callback_port}/callback"
 
     if not client_key:
-        raise click.ClickException(
-            "缺少 client_key，请传入 --client-key 或设置 DOUYIN_CLIENT_KEY",
-        )
+        raise click.ClickException(_missing_client_key_message(qr=qr))
     if not redirect_uri:
         raise click.ClickException("缺少 redirect_uri，请传入 --redirect-uri")
 
@@ -282,6 +280,24 @@ def cookie_logout() -> None:
 
 def _validate_cookie(cookie: str) -> bool:
     return CookieManager.validate_cookie(cookie)
+
+
+def _missing_client_key_message(*, qr: bool) -> str:
+    lines = [
+        "当前命令是官方 OpenAPI OAuth 授权，需要开放平台 client_key。",
+        "这不是网页端 Cookie 扫码登录，不能直接生成可保存 Cookie 的登录二维码。",
+        "",
+        "可选方案：",
+        "  1. 官方 OpenAPI：传入 --client-key，或设置 DOUYIN_CLIENT_KEY。",
+        "  2. 网页端采集：从浏览器复制 Cookie 后运行：",
+        "     douyin auth cookie-login --cookie 'sessionid=...; ttwid=...'",
+    ]
+    if qr:
+        lines.insert(
+            1,
+            "--qr 只会把官方 OAuth 授权链接渲染成二维码，仍然需要 client_key。",
+        )
+    return "\n".join(lines)
 
 
 def _print_qr(value: str) -> None:

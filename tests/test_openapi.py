@@ -62,6 +62,15 @@ def test_login_prints_qr_and_keeps_manual_code_flow(monkeypatch) -> None:
     assert saved["redirectUri"] == "https://example.com/callback"
 
 
+def test_login_qr_without_client_key_explains_openapi_requirement() -> None:
+    result = CliRunner().invoke(main, ["auth", "login", "--qr"])
+
+    assert result.exit_code != 0
+    assert "官方 OpenAPI OAuth 授权" in result.output
+    assert "--qr 只会把官方 OAuth 授权链接渲染成二维码" in result.output
+    assert "douyin auth cookie-login --cookie" in result.output
+
+
 def test_login_listen_uses_local_callback_and_exchanges_code(monkeypatch) -> None:
     saved: dict = {}
 
