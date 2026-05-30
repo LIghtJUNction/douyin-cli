@@ -1,6 +1,6 @@
 ![douyin](https://socialify.git.ci/LIghtJUNction/douyin/image?description=1&font=Source%20Code%20Pro&forks=1&issues=1&language=1&owner=1&pattern=Circuit%20Board&stargazers=1&theme=Auto)
 
-# douyin
+# douyin-cli
 
 面向抖音开放平台官方 OpenAPI 的命令行工具，提供 OAuth 授权、token 管理、常用官方接口封装和通用 OpenAPI 请求能力。
 
@@ -19,28 +19,28 @@
 作为 Python 库安装：
 
 ```bash
-uv add douyin
+uv add douyin-cli
 ```
 
 命令行安装：
 
 ```bash
-uv tool install 'douyin[cli]'
+uv tool install douyin-cli
 ```
 
 开发安装：
 
 ```bash
-uv tool install -e '.[cli]'
+uv tool install -e .
 uv tool install -e '.[subtitle-mac]'
 ```
 
 字幕可选依赖：
 
 ```bash
-uv tool install 'douyin[subtitle]'
-uv tool install 'douyin[subtitle-cuda]'
-uv tool install 'douyin[subtitle-mac]'
+uv tool install 'douyin-cli[subtitle]'
+uv tool install 'douyin-cli[subtitle-cuda]'
+uv tool install 'douyin-cli[subtitle-mac]'
 ```
 
 Python 库调用示例：
@@ -172,7 +172,7 @@ douyin subtitle video.mp4 --language zh
 douyin subtitle video.mp4 --model small --format srt
 ```
 
-首次使用模型时会自动从 Hugging Face 下载。CUDA 模式需要 CUDA 12 运行库；如果系统只提供 CUDA 13，可安装 `douyin[subtitle-cuda]`，或使用 CPU 模式：
+首次使用模型时会自动从 Hugging Face 下载。CUDA 模式需要 CUDA 12 运行库；如果系统只提供 CUDA 13，可安装 `douyin-cli[subtitle-cuda]`，或使用 CPU 模式：
 
 ```bash
 douyin subtitle video.mp4 --device cpu --compute-type int8 --language zh
@@ -181,7 +181,7 @@ douyin subtitle video.mp4 --device cpu --compute-type int8 --language zh
 macOS Apple Silicon 可安装 MLX 后端使用本机 GPU：
 
 ```bash
-uv tool install 'douyin[subtitle-mac]'
+uv tool install 'douyin-cli[subtitle-mac]'
 douyin subtitle video.mp4 --backend mlx-whisper --language zh
 ```
 

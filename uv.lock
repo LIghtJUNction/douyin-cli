@@ -146,33 +146,28 @@ wheels = [
 ]
 
 [[package]]
-name = "douyin"
+name = "douyin-cli"
 version = "2026.5.30.1"
 source = { editable = "." }
 dependencies = [
+    { name = "click" },
     { name = "exejs" },
     { name = "loguru" },
     { name = "niquests" },
+    { name = "qrcode" },
     { name = "ujson" },
 ]
 
 [package.optional-dependencies]
-cli = [
-    { name = "click" },
-    { name = "qrcode" },
-]
 subtitle = [
-    { name = "click" },
     { name = "faster-whisper" },
 ]
 subtitle-cuda = [
-    { name = "click" },
     { name = "faster-whisper" },
     { name = "nvidia-cublas-cu12" },
     { name = "nvidia-cudnn-cu12" },
 ]
 subtitle-mac = [
-    { name = "click" },
     { name = "mlx-whisper", marker = "platform_machine == 'arm64' and sys_platform == 'darwin'" },
 ]
 
@@ -187,10 +182,7 @@ dev = [
 
 [package.metadata]
 requires-dist = [
-    { name = "click", marker = "extra == 'cli'", specifier = ">=8.3.1" },
-    { name = "click", marker = "extra == 'subtitle'", specifier = ">=8.3.1" },
-    { name = "click", marker = "extra == 'subtitle-cuda'", specifier = ">=8.3.1" },
-    { name = "click", marker = "extra == 'subtitle-mac'", specifier = ">=8.3.1" },
+    { name = "click", specifier = ">=8.3.1" },
     { name = "exejs", specifier = ">=0.0.7" },
     { name = "faster-whisper", marker = "extra == 'subtitle'", specifier = ">=1.2.1" },
     { name = "faster-whisper", marker = "extra == 'subtitle-cuda'", specifier = ">=1.2.1" },
@@ -199,10 +191,10 @@ requires-dist = [
     { name = "niquests", specifier = ">=3.10" },
     { name = "nvidia-cublas-cu12", marker = "extra == 'subtitle-cuda'", specifier = ">=12.9.2.10" },
     { name = "nvidia-cudnn-cu12", marker = "extra == 'subtitle-cuda'", specifier = ">=9.22.0.52" },
-    { name = "qrcode", marker = "extra == 'cli'", specifier = ">=8.2" },
+    { name = "qrcode", specifier = ">=8.2" },
     { name = "ujson", specifier = ">=5.11.0" },
 ]
-provides-extras = ["cli", "subtitle", "subtitle-cuda", "subtitle-mac"]
+provides-extras = ["subtitle", "subtitle-cuda", "subtitle-mac"]
 
 [package.metadata.requires-dev]
 dev = [

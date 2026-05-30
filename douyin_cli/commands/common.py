@@ -16,7 +16,7 @@ from douyin_cli.settings import settings
 DEFAULT_OPENAPI_SCOPES = ("user_info",)
 APP_VERSION = "0.0.0"
 with suppress(PackageNotFoundError):
-    APP_VERSION = version("douyin")
+    APP_VERSION = version("douyin-cli")
 
 _LOGGING_CONFIGURED = False
 

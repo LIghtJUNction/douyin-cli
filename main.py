@@ -1,4 +1,4 @@
-"""Command line entry point for douyin."""
+"""Command line entry point for douyin-cli."""
 
 from douyin_cli.cli import main
 

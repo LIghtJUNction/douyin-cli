@@ -54,9 +54,9 @@ douyin auth cookie-logout
 ```
 
 Cookie values are saved in the user config file, not the repository:
-`$XDG_CONFIG_HOME/douyin/config/settings.json`,
-`~/.config/douyin/config/settings.json`, or
-`%APPDATA%\douyin\config\settings.json`. Use `DOUYIN_HOME` to isolate tests.
+`$XDG_CONFIG_HOME/douyin-cli/config/settings.json`,
+`~/.config/douyin-cli/config/settings.json`, or
+`%APPDATA%\douyin-cli\config\settings.json`. Use `DOUYIN_HOME` to isolate tests.
 
 ### Root Compatibility Crawl
 

@@ -23,7 +23,7 @@ def test_obscura_manifest_command_outputs_json() -> None:
 
     assert result.exit_code == 0
     data = json.loads(result.output)
-    assert data["name"] == "douyin"
+    assert data["name"] == "douyin-cli"
     assert data["homepage"] == "https://github.com/LIghtJUNction/douyin"
 
 

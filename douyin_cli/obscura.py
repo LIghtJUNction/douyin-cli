@@ -15,7 +15,7 @@ def build_obscura_manifest(
 ) -> dict[str, Any]:
     """Return a machine-readable integration manifest for Obscura."""
     return {
-        "name": "douyin",
+        "name": "douyin-cli",
         "version": version,
         "homepage": "https://github.com/LIghtJUNction/douyin",
         "entrypoint": "douyin",

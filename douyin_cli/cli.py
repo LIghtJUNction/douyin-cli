@@ -1,4 +1,4 @@
-"""Command line entry point for douyin."""
+"""Command line entry point for douyin-cli."""
 
 from __future__ import annotations
 
@@ -24,7 +24,7 @@ except ImportError as exc:  # pragma: no cover
     if exc.name == "click":
         raise SystemExit(
             "douyin CLI dependencies are not installed. "
-            "Install with: uv tool install 'douyin[cli]'"
+            "Install with: uv tool install douyin-cli"
         ) from exc
     raise
 
